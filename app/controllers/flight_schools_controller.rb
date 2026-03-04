@@ -8,6 +8,19 @@ class FlightSchoolsController < ApplicationController
 
   def show
     @aircrafts = @flight_school.aircrafts.includes(:downtime_events)
+
+    if params[:search].present?
+      search_term = "%#{params[:search]}%"
+      @aircrafts = @aircrafts.where("tail_number LIKE ? OR model LIKE ?", search_term, search_term)
+    end
+
+    if params[:status] == "available"
+      down_ids = DowntimeEvent.where("started_at <= ? AND (ended_at IS NULL OR ended_at >= ?)", Time.current, Time.current).select(:aircraft_id)
+      @aircrafts = @aircrafts.where.not(id: down_ids)
+    elsif params[:status] == "down"
+      down_ids = DowntimeEvent.where("started_at <= ? AND (ended_at IS NULL OR ended_at >= ?)", Time.current, Time.current).select(:aircraft_id)
+      @aircrafts = @aircrafts.where(id: down_ids)
+    end
   end
 
   def new

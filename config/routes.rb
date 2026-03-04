@@ -12,6 +12,10 @@ Rails.application.routes.draw do
   # Flight Schools with nested Aircraft, Downtime Events, and Maintenance Logs
   resources :flight_schools do
     resources :aircrafts do
+      member do
+        post :mark_down
+        post :mark_available
+      end
       resources :downtime_events, except: [:index, :show]
       resources :maintenance_logs, except: [:index, :show]
     end

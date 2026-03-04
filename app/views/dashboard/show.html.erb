@@ -1,61 +1,188 @@
 <h1 class="mb-4">Dashboard</h1>
 
+<!-- Status Cards -->
 <div class="row mb-4">
-  <div class="col-md-4">
+  <div class="col-md-3">
     <div class="card text-bg-primary shadow-sm">
       <div class="card-body text-center">
-        <h5 class="card-title">Total Aircraft</h5>
+        <h6 class="card-title">Total Aircraft</h6>
         <p class="display-4"><%= @total_aircraft %></p>
       </div>
     </div>
   </div>
-  <div class="col-md-4">
+  <div class="col-md-3">
     <div class="card text-bg-success shadow-sm">
       <div class="card-body text-center">
-        <h5 class="card-title">Available</h5>
+        <h6 class="card-title">Available</h6>
         <p class="display-4"><%= @aircraft_available %></p>
       </div>
     </div>
   </div>
-  <div class="col-md-4">
+  <div class="col-md-3">
     <div class="card text-bg-danger shadow-sm">
       <div class="card-body text-center">
-        <h5 class="card-title">Down</h5>
+        <h6 class="card-title">Down</h6>
         <p class="display-4"><%= @aircraft_down %></p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-bg-secondary shadow-sm">
+      <div class="card-body text-center">
+        <h6 class="card-title">Total Downtime</h6>
+        <p class="display-4"><%= @total_downtime_hours %><small class="fs-6">hrs</small></p>
       </div>
     </div>
   </div>
 </div>
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <h3>Your Flight Schools</h3>
-  <%= link_to "Add Flight School", new_flight_school_path, class: "btn btn-primary" %>
-</div>
+<div class="row mb-4">
+  <!-- Flight Schools -->
+  <div class="col-lg-6 mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h3>Your Flight Schools</h3>
+      <%= link_to "Add Flight School", new_flight_school_path, class: "btn btn-sm btn-primary" %>
+    </div>
 
-<% if @flight_schools.any? %>
-  <div class="row">
-    <% @flight_schools.each do |school| %>
-      <div class="col-md-6 mb-3">
-        <div class="card shadow-sm">
-          <div class="card-body">
-            <h5 class="card-title"><%= link_to school.name, school %></h5>
-            <p class="text-muted mb-2"><%= school.location %></p>
-            <div class="d-flex gap-3">
-              <span class="badge bg-primary"><%= school.aircrafts.size %> Aircraft</span>
-              <% down_count = school.aircrafts.count(&:currently_down?) %>
-              <% if down_count > 0 %>
-                <span class="badge bg-danger"><%= down_count %> Down</span>
-              <% else %>
-                <span class="badge bg-success">All Available</span>
-              <% end %>
+    <% if @flight_schools.any? %>
+      <% @flight_schools.each do |school| %>
+        <div class="card shadow-sm mb-2">
+          <div class="card-body py-2">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="mb-0"><%= link_to school.name, school %></h6>
+                <small class="text-muted"><%= school.location %></small>
+              </div>
+              <div class="d-flex gap-2">
+                <span class="badge bg-primary"><%= school.aircrafts.size %> Aircraft</span>
+                <% down_count = school.aircrafts.count(&:currently_down?) %>
+                <% if down_count > 0 %>
+                  <span class="badge bg-danger"><%= down_count %> Down</span>
+                <% else %>
+                  <span class="badge bg-success">All Available</span>
+                <% end %>
+              </div>
             </div>
           </div>
         </div>
+      <% end %>
+    <% else %>
+      <div class="alert alert-info">
+        No flight schools yet. <%= link_to "Create one", new_flight_school_path %>.
       </div>
     <% end %>
   </div>
-<% else %>
-  <div class="alert alert-info">
-    You haven't added any flight schools yet. <%= link_to "Create your first flight school", new_flight_school_path %>.
+
+  <!-- Upcoming Returns & Reason Breakdown -->
+  <div class="col-lg-6 mb-4">
+    <!-- Upcoming Returns to Service -->
+    <h3 class="mb-3">Upcoming Returns to Service</h3>
+    <% if @upcoming_returns.any? %>
+      <div class="card shadow-sm mb-4">
+        <div class="card-body p-0">
+          <table class="table table-sm mb-0">
+            <thead>
+              <tr>
+                <th>Aircraft</th>
+                <th>Reason</th>
+                <th>Est. Return</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @upcoming_returns.each do |event| %>
+                <tr>
+                  <td><strong><%= event.aircraft.tail_number %></strong></td>
+                  <td><span class="badge bg-<%= event.reason_type == 'breakdown' ? 'danger' : 'warning' %>"><%= event.reason_type.capitalize %></span></td>
+                  <td><%= event.ended_at.strftime("%b %d, %Y %l:%M %p") %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    <% else %>
+      <div class="alert alert-success mb-4">No aircraft currently down with scheduled returns.</div>
+    <% end %>
+
+    <!-- Downtime Reason Breakdown -->
+    <h3 class="mb-3">Downtime by Reason</h3>
+    <% if @reason_counts.any? %>
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <% reason_colors = { "maintenance" => "warning", "breakdown" => "danger", "inspection" => "info", "other" => "secondary" } %>
+          <% @reason_counts.each do |reason, count| %>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span><span class="badge bg-<%= reason_colors[reason] || 'secondary' %> me-2"><%= reason.capitalize %></span></span>
+              <div class="d-flex align-items-center gap-2" style="flex: 1; max-width: 70%;">
+                <div class="progress flex-grow-1" style="height: 20px;">
+                  <div class="progress-bar bg-<%= reason_colors[reason] || 'secondary' %>" style="width: <%= @total_downtime_events > 0 ? (count.to_f / @total_downtime_events * 100).round : 0 %>%"></div>
+                </div>
+                <strong><%= count %></strong>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% else %>
+      <div class="alert alert-info">No downtime events recorded yet.</div>
+    <% end %>
   </div>
-<% end %>
+</div>
+
+<!-- Activity Feed -->
+<div class="row">
+  <div class="col-lg-6 mb-4">
+    <h3 class="mb-3">Recent Downtime Events</h3>
+    <% if @recent_downtime_events.any? %>
+      <div class="list-group">
+        <% @recent_downtime_events.each do |event| %>
+          <div class="list-group-item">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <strong><%= event.aircraft.tail_number %></strong>
+                <span class="badge bg-<%= event.reason_type == 'breakdown' ? 'danger' : 'warning' %> ms-1"><%= event.reason_type.capitalize %></span>
+                <% if event.ended_at.present? && event.ended_at < Time.current %>
+                  <span class="badge bg-secondary ms-1">Completed</span>
+                <% elsif event.started_at <= Time.current %>
+                  <span class="badge bg-danger ms-1">Active</span>
+                <% end %>
+              </div>
+              <small class="text-muted"><%= time_ago_in_words(event.created_at) %> ago</small>
+            </div>
+            <% if event.description.present? %>
+              <small class="text-muted"><%= truncate(event.description, length: 80) %></small>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="alert alert-info">No downtime events yet.</div>
+    <% end %>
+  </div>
+
+  <div class="col-lg-6 mb-4">
+    <h3 class="mb-3">Recent Maintenance Logs</h3>
+    <% if @recent_maintenance_logs.any? %>
+      <div class="list-group">
+        <% @recent_maintenance_logs.each do |log| %>
+          <div class="list-group-item">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <strong><%= log.aircraft.tail_number %></strong>
+                <span class="badge bg-info ms-1"><%= log.log_type.capitalize %></span>
+              </div>
+              <small class="text-muted"><%= log.logged_at.strftime("%b %d, %Y") %></small>
+            </div>
+            <small class="text-muted">
+              <% if log.hobbs_hours.present? %>Hobbs: <%= log.hobbs_hours %>h<% end %>
+              <% if log.tach_hours.present? %> | Tach: <%= log.tach_hours %>h<% end %>
+              <% if log.notes.present? %> - <%= truncate(log.notes, length: 60) %><% end %>
+            </small>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="alert alert-info">No maintenance logs yet.</div>
+    <% end %>
+  </div>
+</div>
