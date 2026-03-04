@@ -1,0 +1,34 @@
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1>Flight Schools</h1>
+  <%= link_to "Add Flight School", new_flight_school_path, class: "btn btn-primary" %>
+</div>
+
+<% if @flight_schools.any? %>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Location</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @flight_schools.each do |school| %>
+        <tr>
+          <td><%= link_to school.name, school %></td>
+          <td><%= school.location %></td>
+          <td>
+            <%= link_to "View", school, class: "btn btn-sm btn-outline-primary" %>
+            <%= link_to "Edit", edit_flight_school_path(school), class: "btn btn-sm btn-outline-secondary" %>
+            <%= button_to "Delete", school, method: :delete, class: "btn btn-sm btn-outline-danger",
+                data: { turbo_confirm: "Are you sure you want to delete this flight school and all its aircraft?" } %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <div class="alert alert-info">
+    No flight schools yet. <%= link_to "Create one", new_flight_school_path %>.
+  </div>
+<% end %>

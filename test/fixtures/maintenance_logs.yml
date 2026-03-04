@@ -1,0 +1,17 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  aircraft: one
+  logged_at: 2026-03-03 20:10:10
+  log_type: MyString
+  hobbs_hours: 9.99
+  tach_hours: 9.99
+  notes: MyText
+
+two:
+  aircraft: two
+  logged_at: 2026-03-03 20:10:10
+  log_type: MyString
+  hobbs_hours: 9.99
+  tach_hours: 9.99
+  notes: MyText

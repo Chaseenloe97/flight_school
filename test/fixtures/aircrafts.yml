@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  flight_school: one
+  tail_number: MyString
+  model: MyString
+  status: MyString
+  notes: MyText
+
+two:
+  flight_school: two
+  tail_number: MyString
+  model: MyString
+  status: MyString
+  notes: MyText

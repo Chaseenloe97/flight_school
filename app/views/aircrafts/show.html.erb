@@ -1,0 +1,132 @@
+<div class="d-flex justify-content-between align-items-start mb-4">
+  <div>
+    <h1>
+      <%= @aircraft.tail_number %>
+      <% if @aircraft.currently_down? %>
+        <span class="badge bg-danger fs-6">DOWN</span>
+      <% else %>
+        <span class="badge bg-success fs-6">Available</span>
+      <% end %>
+    </h1>
+    <p class="text-muted mb-1"><strong>Model:</strong> <%= @aircraft.model %></p>
+    <p class="text-muted mb-0"><strong>Flight School:</strong> <%= link_to @flight_school.name, @flight_school %></p>
+    <% if @aircraft.notes.present? %>
+      <p class="mt-2"><strong>Notes:</strong> <%= @aircraft.notes %></p>
+    <% end %>
+  </div>
+  <div class="d-flex gap-2">
+    <%= link_to "Edit", edit_flight_school_aircraft_path(@flight_school, @aircraft), class: "btn btn-outline-secondary" %>
+    <%= button_to "Delete", flight_school_aircraft_path(@flight_school, @aircraft), method: :delete,
+        class: "btn btn-outline-danger", data: { turbo_confirm: "Are you sure?" } %>
+  </div>
+</div>
+
+<% if @active_downtime %>
+  <div class="alert alert-danger">
+    <h5>Currently Down</h5>
+    <p class="mb-1"><strong>Reason:</strong> <%= @active_downtime.reason_type.capitalize %></p>
+    <% if @active_downtime.description.present? %>
+      <p class="mb-1"><strong>Details:</strong> <%= @active_downtime.description %></p>
+    <% end %>
+    <p class="mb-1"><strong>Since:</strong> <%= @active_downtime.started_at.strftime("%b %d, %Y %l:%M %p") %></p>
+    <% if @active_downtime.ended_at %>
+      <p class="mb-0"><strong>Est. return:</strong> <%= @active_downtime.ended_at.strftime("%b %d, %Y %l:%M %p") %></p>
+    <% else %>
+      <p class="mb-0"><strong>Est. return:</strong> Unknown</p>
+    <% end %>
+  </div>
+<% end %>
+
+<!-- Downtime Events Section -->
+<div class="card shadow-sm mb-4">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h4 class="mb-0">Downtime Events</h4>
+    <%= link_to "Log Downtime", new_flight_school_aircraft_downtime_event_path(@flight_school, @aircraft), class: "btn btn-sm btn-warning" %>
+  </div>
+  <div class="card-body">
+    <% if @downtime_events.any? %>
+      <table class="table table-sm">
+        <thead>
+          <tr>
+            <th>Reason</th>
+            <th>Started</th>
+            <th>Ended</th>
+            <th>Description</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @downtime_events.each do |event| %>
+            <tr>
+              <td><span class="badge bg-<%= event.reason_type == 'breakdown' ? 'danger' : 'warning' %>"><%= event.reason_type.capitalize %></span></td>
+              <td><%= event.started_at.strftime("%b %d, %Y %l:%M %p") %></td>
+              <td><%= event.ended_at&.strftime("%b %d, %Y %l:%M %p") || "Ongoing" %></td>
+              <td><%= truncate(event.description, length: 50) %></td>
+              <td>
+                <% if event.ended_at.present? && event.ended_at < Time.current %>
+                  <span class="badge bg-secondary">Completed</span>
+                <% elsif event.started_at <= Time.current %>
+                  <span class="badge bg-danger">Active</span>
+                <% else %>
+                  <span class="badge bg-info">Scheduled</span>
+                <% end %>
+              </td>
+              <td>
+                <%= link_to "Edit", edit_flight_school_aircraft_downtime_event_path(@flight_school, @aircraft, event), class: "btn btn-sm btn-outline-secondary" %>
+                <%= button_to "Delete", flight_school_aircraft_downtime_event_path(@flight_school, @aircraft, event),
+                    method: :delete, class: "btn btn-sm btn-outline-danger", data: { turbo_confirm: "Delete this event?" } %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% else %>
+      <p class="text-muted mb-0">No downtime events recorded.</p>
+    <% end %>
+  </div>
+</div>
+
+<!-- Maintenance Logs Section -->
+<div class="card shadow-sm mb-4">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h4 class="mb-0">Maintenance Logs</h4>
+    <%= link_to "Add Log", new_flight_school_aircraft_maintenance_log_path(@flight_school, @aircraft), class: "btn btn-sm btn-info" %>
+  </div>
+  <div class="card-body">
+    <% if @maintenance_logs.any? %>
+      <table class="table table-sm">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Type</th>
+            <th>Hobbs Hours</th>
+            <th>Tach Hours</th>
+            <th>Notes</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @maintenance_logs.each do |log| %>
+            <tr>
+              <td><%= log.logged_at.strftime("%b %d, %Y") %></td>
+              <td><%= log.log_type.capitalize %></td>
+              <td><%= log.hobbs_hours %></td>
+              <td><%= log.tach_hours %></td>
+              <td><%= truncate(log.notes, length: 50) %></td>
+              <td>
+                <%= link_to "Edit", edit_flight_school_aircraft_maintenance_log_path(@flight_school, @aircraft, log), class: "btn btn-sm btn-outline-secondary" %>
+                <%= button_to "Delete", flight_school_aircraft_maintenance_log_path(@flight_school, @aircraft, log),
+                    method: :delete, class: "btn btn-sm btn-outline-danger", data: { turbo_confirm: "Delete this log?" } %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% else %>
+      <p class="text-muted mb-0">No maintenance logs recorded.</p>
+    <% end %>
+  </div>
+</div>
+
+<%= link_to "Back to Fleet", flight_school_path(@flight_school), class: "btn btn-link" %>

@@ -1,0 +1,36 @@
+<div class="row justify-content-center">
+  <div class="col-md-6 col-lg-4">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h2 class="card-title text-center mb-4">Sign Up</h2>
+
+        <%= render "shared/form_errors", object: @user %>
+
+        <%= form_with model: @user, url: signup_path do |f| %>
+          <div class="mb-3">
+            <%= f.label :email, class: "form-label" %>
+            <%= f.email_field :email, class: "form-control", required: true, autofocus: true %>
+          </div>
+
+          <div class="mb-3">
+            <%= f.label :password, class: "form-label" %>
+            <%= f.password_field :password, class: "form-control", required: true %>
+          </div>
+
+          <div class="mb-3">
+            <%= f.label :password_confirmation, class: "form-label" %>
+            <%= f.password_field :password_confirmation, class: "form-control", required: true %>
+          </div>
+
+          <div class="d-grid">
+            <%= f.submit "Create Account", class: "btn btn-primary" %>
+          </div>
+        <% end %>
+
+        <p class="text-center mt-3 mb-0">
+          Already have an account? <%= link_to "Log In", login_path %>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

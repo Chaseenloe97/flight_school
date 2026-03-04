@@ -1,0 +1,18 @@
+<%= render "shared/form_errors", object: flight_school %>
+
+<%= form_with model: flight_school do |f| %>
+  <div class="mb-3">
+    <%= f.label :name, class: "form-label" %>
+    <%= f.text_field :name, class: "form-control", required: true, autofocus: true %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :location, class: "form-label" %>
+    <%= f.text_field :location, class: "form-control" %>
+  </div>
+
+  <div class="d-flex gap-2">
+    <%= f.submit class: "btn btn-primary" %>
+    <%= link_to "Cancel", flight_schools_path, class: "btn btn-outline-secondary" %>
+  </div>
+<% end %>

@@ -1,0 +1,51 @@
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h1><%= @flight_school.name %></h1>
+    <p class="text-muted"><%= @flight_school.location %></p>
+  </div>
+  <div class="d-flex gap-2">
+    <%= link_to "Edit", edit_flight_school_path(@flight_school), class: "btn btn-outline-secondary" %>
+    <%= link_to "Add Aircraft", new_flight_school_aircraft_path(@flight_school), class: "btn btn-primary" %>
+  </div>
+</div>
+
+<h3 class="mb-3">Fleet (<%= @aircrafts.size %> Aircraft)</h3>
+
+<% if @aircrafts.any? %>
+  <div class="row">
+    <% @aircrafts.each do |aircraft| %>
+      <div class="col-md-6 col-lg-4 mb-3">
+        <div class="card shadow-sm border-<%= aircraft.currently_down? ? 'danger' : 'success' %>">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <h5 class="card-title mb-1"><%= aircraft.tail_number %></h5>
+                <p class="text-muted mb-2"><%= aircraft.model %></p>
+              </div>
+              <% if aircraft.currently_down? %>
+                <span class="badge bg-danger">DOWN</span>
+              <% else %>
+                <span class="badge bg-success">Available</span>
+              <% end %>
+            </div>
+            <% if aircraft.currently_down? && aircraft.active_downtime_event %>
+              <p class="small text-danger mb-2">
+                <strong>Reason:</strong> <%= aircraft.active_downtime_event.reason_type.capitalize %>
+                <% if aircraft.active_downtime_event.ended_at %>
+                  <br><strong>Est. return:</strong> <%= aircraft.active_downtime_event.ended_at.strftime("%b %d, %Y %l:%M %p") %>
+                <% end %>
+              </p>
+            <% end %>
+            <%= link_to "View Details", flight_school_aircraft_path(@flight_school, aircraft), class: "btn btn-sm btn-outline-primary" %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <div class="alert alert-info">
+    No aircraft in this fleet yet. <%= link_to "Add your first aircraft", new_flight_school_aircraft_path(@flight_school) %>.
+  </div>
+<% end %>
+
+<%= link_to "Back to Dashboard", dashboard_path, class: "btn btn-link mt-3" %>

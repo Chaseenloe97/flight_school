@@ -1,0 +1,23 @@
+<%= render "shared/form_errors", object: aircraft %>
+
+<%= form_with model: [@flight_school, aircraft] do |f| %>
+  <div class="mb-3">
+    <%= f.label :tail_number, class: "form-label" %>
+    <%= f.text_field :tail_number, class: "form-control", required: true, autofocus: true, placeholder: "e.g. N12345" %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :model, "Aircraft Model", class: "form-label" %>
+    <%= f.text_field :model, class: "form-control", required: true, placeholder: "e.g. Cessna 172" %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :notes, class: "form-label" %>
+    <%= f.text_area :notes, class: "form-control", rows: 3 %>
+  </div>
+
+  <div class="d-flex gap-2">
+    <%= f.submit class: "btn btn-primary" %>
+    <%= link_to "Cancel", flight_school_path(@flight_school), class: "btn btn-outline-secondary" %>
+  </div>
+<% end %>
