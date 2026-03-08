@@ -7,17 +7,18 @@ class ApplicationController < ActionController::Base
   private
 
   def current_user
-    @current_user ||= User.find_by(id: session[:user_id]) if session[:user_id]
+    @current_user ||= User.first || User.create!(
+      email: "owner@flightschool.com",
+      password: "password",
+      password_confirmation: "password"
+    )
   end
 
   def logged_in?
-    current_user.present?
+    true
   end
 
   def require_login
-    unless logged_in?
-      flash[:alert] = "You must be logged in to access this page."
-      redirect_to login_path
-    end
+    # No-op: authentication disabled
   end
 end
